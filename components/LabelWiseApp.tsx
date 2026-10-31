@@ -113,6 +113,19 @@ export function LabelWiseApp() {
     }
   }
 
+  function resetScan() {
+    if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    setBusy(false);
+    setError(null);
+    setResult(null);
+    setNafdac(null);
+    setNafdacError(null);
+    setNafdacLoading(false);
+    setPath("idle");
+  }
+
+  const canReset = Boolean(previewUrl || result || error);
   const activeLabel =
     result?.provider === "openai"
       ? "OpenAI"
@@ -149,10 +162,25 @@ export function LabelWiseApp() {
           <p className="text-sm text-amber-800">{providersError}</p>
         ) : null}
 
-        <CameraCapture
-          disabled={busy || !provider || !providers.some((p) => p.id === provider && p.available)}
-          onFile={handleFile}
-        />
+        {canReset ? (
+          <button
+            type="button"
+            onClick={resetScan}
+            disabled={busy}
+            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-white disabled:opacity-50"
+          >
+            Scan another
+          </button>
+        ) : (
+          <CameraCapture
+            disabled={
+              busy ||
+              !provider ||
+              !providers.some((p) => p.id === provider && p.available)
+            }
+            onFile={handleFile}
+          />
+        )}
         {busy ? (
           <p className="text-sm font-medium text-[var(--accent)]">
             Reading the label…
